@@ -12,5 +12,5 @@ as the name suggests PyC can track all system info such as network info,net addr
 Now this BIOS program is very powerful as any changes you make in it, That change will be applied to your Windows boot settings(using C++).So you can easily brick(kill) your computer if this software is used wrongly/if you dont know how to use it.For this specific case i have installed a guide in the softwareand i recommend you read through it for better understanding.So as always if smth happens to ur computer i am not responsible.
 
 As usual:
-# Python : Frontend,GUI(print and recieves text)
-# C++ : Backend,change sys settings and configuration made possible
+ Python : Frontend,GUI(print and recieves text)
+ C++ : Backend,change sys settings and configuration made possible
