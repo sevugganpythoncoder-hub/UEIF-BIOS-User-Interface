@@ -1,8 +1,8 @@
 # UEIF-BIOS-User-Interface
-BIOS user interface software(ASUS GUI knockoff)
+BIOS user interface software(ASUS GUI knockoff)(Now supports both windows and linux)
 
 # What is this?:
-PyC(software name) is BIOS user interface(basic input output system) but don't let that name confuse you! as it is a very vital part of an OS.
+PyC(software name) is BIOS user interface(basic input output system,Now cross-platform) but don't let that name confuse you! as it is a very vital part of an OS.
 
 # What are its functions?:
 as the name suggests PyC can track all system info such as network info,net address,CPU info,GPU info,Clock speed,configuring boot order and many more!
