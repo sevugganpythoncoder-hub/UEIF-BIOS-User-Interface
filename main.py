@@ -5,6 +5,7 @@ import platform
 import ctypes
 import psutil
 import socket
+import subprocess  
 from datetime import datetime
 import customtkinter as ctk
 
@@ -46,6 +47,28 @@ try:
     cpp_firmware_library.GetSystemStateAddress.restype = ctypes.POINTER(AdvancedFirmwareMemoryMap)
     shared_firmware_state = cpp_firmware_library.GetSystemStateAddress().contents
     IS_NATIVE_RUNTIME_ACTIVE = True
+
+    if system_os == "Windows":
+        try:
+            is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+        except Exception:
+            is_admin = False
+            
+        if not is_admin:
+            executable = sys.executable
+            arguments = " ".join([f'"{arg}"' for arg in sys.argv])
+            ctypes.windll.shell32.ShellExecuteW(None, "runas", executable, arguments, None, 1)
+            sys.exit(0)
+            
+    elif system_os == "Linux":
+        if os.geteuid() != 0:
+            print("[INFO] Root privileges required. Re-launching application via sudo wrapper...")
+            try:
+                subprocess.check_call(["sudo", sys.executable] + sys.argv)
+            except subprocess.CalledProcessError as e:
+                print(f"[ERROR] Re-authentication lifecycle interrupted: {e}")
+                sys.exit(1)
+            sys.exit(0)
     
 except Exception as e:
     shared_firmware_state = AdvancedFirmwareMemoryMap()
@@ -107,18 +130,24 @@ def gather_network_configuration():
             break
 
     try:
-        import subprocess
-        output = subprocess.check_output("ipconfig /all", shell=True).decode('ansi')
-        adapter_found = False
-        for line in output.split('\n'):
-            if active_adapter in line or (("adapter" in line.lower() or "wi-fi" in line.lower() or "ethernet" in line.lower()) and ":" in line):
-                adapter_found = True
-            if adapter_found and "dhcp enabled" in line.lower():
-                if "yes" in line.lower():
-                    config_type = "DHCP Automatically Assigned"
-                else:
-                    config_type = "Manually Configured (Static)"
-                break
+        if platform.system() == "Windows":
+            output = subprocess.check_output("ipconfig /all", shell=True).decode('ansi')
+            adapter_found = False
+            for line in output.split('\n'):
+                if active_adapter in line or (("adapter" in line.lower() or "wi-fi" in line.lower() or "ethernet" in line.lower()) and ":" in line):
+                    adapter_found = True
+                if adapter_found and "dhcp enabled" in line.lower():
+                    if "yes" in line.lower():
+                        config_type = "DHCP Automatically Assigned"
+                    else:
+                        config_type = "Manually Configured (Static)"
+                    break
+        elif platform.system() == "Linux":
+            route_output = subprocess.check_output("ip route", shell=True).decode('utf-8')
+            if "dhcp" in route_output.lower():
+                config_type = "DHCP Automatically Assigned"
+            else:
+                config_type = "Manually Configured (Static)"
     except Exception:
         pass
 
@@ -381,7 +410,7 @@ class PycEzAudiitDashboard(ctk.CTk):
             "furnished to do so, subject to the following conditions:\n\n"
             "The above copyright notice and this permission notice shall be included in all\n"
             "copies or substantial portions of the Software.\n\n"
-            "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+            "The SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
             "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"
             "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"
             "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
