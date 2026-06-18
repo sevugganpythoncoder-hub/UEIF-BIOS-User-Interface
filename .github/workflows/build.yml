@@ -1,0 +1,34 @@
+# testing
+name: Compile BIOS Engine
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            arch: x64
+            output: bios_engine_win_x64.dll
+            compiler: g++
+          - os: ubuntu-latest
+            arch: x64
+            output: bios_engine_linux_x64.so
+            compiler: g++
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile C++ Engine
+        shell: bash
+        run: |
+          mkdir -p bin
+          ${{ matrix.compiler }} -shared -fPIC -o bin/${{ matrix.output }} src/bios_engine.cpp
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-binaries-${{ matrix.os }}-${{ matrix.arch }}
+          path: bin/
