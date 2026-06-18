@@ -31,3 +31,5 @@ jobs:
         with:
           name: compiled-binaries-${{ matrix.os }}-${{ matrix.arch }}
           path: bin/
+
+          
