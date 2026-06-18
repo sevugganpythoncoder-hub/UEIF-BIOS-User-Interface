@@ -32,25 +32,23 @@ try:
     arch = platform.machine().lower()
     
     if system_os == "Windows":
-        ext = ".dll"
-        os_name = "win"
+        binary_name = "bios_engine_win_x64.dll"
     else:
-        ext = ".so"
-        os_name = "linux"
+        binary_name = "bios_engine_linux_x64.so"
         
-    if "amd64" in arch or "x86_64" in arch:
-        arch_name = "x64"
-    else:
-        arch_name = "arm64"
-        
-    binary_name = f"bios_engine_{os_name}_{arch_name}{ext}"
     NATIVE_ENGINE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "bin", binary_name))
     
-    cpp_firmware_library = ctypes.CDLL(NATIVE_ENGINE_PATH)
-    cpp_firmware_library.GetSystemStateAddress.restype = ctypes.POINTER(AdvancedFirmwareMemoryMap)
-    shared_firmware_state = cpp_firmware_library.GetSystemStateAddress().contents
-    IS_NATIVE_RUNTIME_ACTIVE = True
-except Exception:
+    
+    if os.path.exists(NATIVE_ENGINE_PATH):
+        cpp_firmware_library = ctypes.CDLL(NATIVE_ENGINE_PATH)
+        cpp_firmware_library.GetSystemStateAddress.restype = ctypes.POINTER(AdvancedFirmwareMemoryMap)
+        shared_firmware_state = cpp_firmware_library.GetSystemStateAddress().contents
+        IS_NATIVE_RUNTIME_ACTIVE = True
+    else:
+        print(f"File not found at {NATIVE_ENGINE_PATH}")
+        raise FileNotFoundError
+except Exception as e:
+    print(f"Native Load Failed: {e}")
     shared_firmware_state = AdvancedFirmwareMemoryMap()
     IS_NATIVE_RUNTIME_ACTIVE = False
 
