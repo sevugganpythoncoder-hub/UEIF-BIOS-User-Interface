@@ -1,3 +1,5 @@
+![Compile BIOS Engine](https://github.com/sevugganpythoncoder-hub/UEIF-BIOS-User-Interface/actions/workflows/build.yml/badge.svg)
+
 # UEIF-BIOS-User-Interface
 BIOS user interface software(ASUS GUI knockoff)(Now supports both windows and linux)
 
@@ -15,4 +17,4 @@ As usual:
  Python : Frontend,GUI(print and recieves text)
  C++ : Backend,change sys settings and configuration made possible
 
- ![Compile BIOS Engine](https://github.com/sevugganpythoncoder-hub/UEIF-BIOS-User-Interface/actions/workflows/build.yml/badge.svg)
+
