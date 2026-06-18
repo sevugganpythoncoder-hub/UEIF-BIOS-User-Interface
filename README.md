@@ -14,3 +14,5 @@ Now this BIOS program is very powerful as any changes you make in it, That chang
 As usual:
  Python : Frontend,GUI(print and recieves text)
  C++ : Backend,change sys settings and configuration made possible
+
+ ![Compile BIOS Engine](https://github.com/sevugganpythoncoder-hub/UEIF-BIOS-User-Interface/actions/workflows/build.yml/badge.svg)
