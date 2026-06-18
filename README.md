@@ -13,6 +13,10 @@ as the name suggests PyC can track all system info such as network info,net addr
 # Key info before using:
 Now this BIOS program is very powerful as any changes you make in it, That change will be applied to your Windows boot settings(using C++).So you can easily brick(kill) your computer if this software is used wrongly/if you dont know how to use it.For this specific case i have installed a guide in the softwareand i recommend you read through it for better understanding.So as always if smth happens to ur computer i am not responsible.This sofware is made to view all your computer's **info** only.
 
+# how to use:
+   ->Download main.py and respective bios_engine.dll or .so(win or linux) from bin folder
+   ->Put both in a folder and run!
+
 As usual:
  Python : Frontend,GUI(print and recieves text)
  C++ : Backend,change sys settings and configuration made possible
