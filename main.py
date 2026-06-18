@@ -29,26 +29,25 @@ class AdvancedFirmwareMemoryMap(ctypes.Structure):
 
 try:
     system_os = platform.system()
-    arch = platform.machine().lower()
+    binary_name = "bios_engine_win_x64.dll" if system_os == "Windows" else "bios_engine_linux_x64.so"
+
+    path_in_bin = os.path.abspath(os.path.join(os.path.dirname(__file__), "bin", binary_name))
+    path_in_root = os.path.abspath(os.path.join(os.path.dirname(__file__), binary_name))
     
-    if system_os == "Windows":
-        binary_name = "bios_engine_win_x64.dll"
+    if os.path.exists(path_in_bin):
+        target_path = path_in_bin
+    elif os.path.exists(path_in_root):
+        target_path = path_in_root
     else:
-        binary_name = "bios_engine_linux_x64.so"
-        
-    NATIVE_ENGINE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "bin", binary_name))
-    
-    
-    if os.path.exists(NATIVE_ENGINE_PATH):
-        cpp_firmware_library = ctypes.CDLL(NATIVE_ENGINE_PATH)
-        cpp_firmware_library.GetSystemStateAddress.restype = ctypes.POINTER(AdvancedFirmwareMemoryMap)
-        shared_firmware_state = cpp_firmware_library.GetSystemStateAddress().contents
-        IS_NATIVE_RUNTIME_ACTIVE = True
-    else:
-        print(f"File not found at {NATIVE_ENGINE_PATH}")
+        print(f"DEBUG: Could not find {binary_name} in bin/ or root directory.")
         raise FileNotFoundError
+
+    cpp_firmware_library = ctypes.CDLL(target_path)
+    cpp_firmware_library.GetSystemStateAddress.restype = ctypes.POINTER(AdvancedFirmwareMemoryMap)
+    shared_firmware_state = cpp_firmware_library.GetSystemStateAddress().contents
+    IS_NATIVE_RUNTIME_ACTIVE = True
+    
 except Exception as e:
-    print(f"Native Load Failed: {e}")
     shared_firmware_state = AdvancedFirmwareMemoryMap()
     IS_NATIVE_RUNTIME_ACTIVE = False
 
