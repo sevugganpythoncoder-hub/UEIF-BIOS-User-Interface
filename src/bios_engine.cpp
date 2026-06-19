@@ -72,25 +72,43 @@ extern "C" {
             return false;
         }
 
-        BOOL success = SetFirmwareEnvironmentVariableW(
+        BOOL UIStateSuccess = SetFirmwareEnvironmentVariableW(
             L"AsusBiosConfigData",
             UEFI_GLOBAL_GUID,
             &currentSystemState,
             sizeof(AsusBiosMemoryMap)
         );
-        return success != 0;
+
+        BOOL hardwareBootSuccess = SetFirmwareEnvironmentVariableW(
+            L"BootOrder",
+            UEFI_GLOBAL_GUID,
+            currentSystemState.bootPrioritySequence,
+            sizeof(currentSystemState.bootPrioritySequence)
+        );
+
+        return (UIStateSuccess != 0) && (hardwareBootSuccess != 0);
 #else
-        const char* efi_path = "/sys/firmware/efi/efivars/AsusBiosConfigData-8be4df61-93ca-11d2-aa0d-00e098032b8c";
-        std::ofstream file(efi_path, std::ios::binary);
-        if (!file.is_open()) {
+        const char* efi_ui_path = "/sys/firmware/efi/efivars/AsusBiosConfigData-8be4df61-93ca-11d2-aa0d-00e098032b8c";
+        std::ofstream ui_file(efi_ui_path, std::ios::binary);
+        if (!ui_file.is_open()) {
             std::cerr << "[ERROR] Writing runtime variables to efivarfs failed." << std::endl;
             return false;
         }
-
         uint32_t efi_attributes = 0x00000007;
-        file.write(reinterpret_cast<const char*>(&efi_attributes), sizeof(efi_attributes));
-        file.write(reinterpret_cast<const char*>(&currentSystemState), sizeof(AsusBiosMemoryMap));
-        file.close();
+        ui_file.write(reinterpret_cast<const char*>(&efi_attributes), sizeof(efi_attributes));
+        ui_file.write(reinterpret_cast<const char*>(&currentSystemState), sizeof(AsusBiosMemoryMap));
+        ui_file.close();
+
+        const char* efi_boot_path = "/sys/firmware/efi/efivars/BootOrder-8be4df61-93ca-11d2-aa0d-00e098032b8c";
+        std::ofstream boot_file(efi_boot_path, std::ios::binary);
+        if (!boot_file.is_open()) {
+            std::cerr << "[ERROR] Writing standard BootOrder to efivarfs failed." << std::endl;
+            return false;
+        }
+        boot_file.write(reinterpret_cast<const char*>(&efi_attributes), sizeof(efi_attributes));
+        boot_file.write(reinterpret_cast<const char*>(currentSystemState.bootPrioritySequence), sizeof(currentSystemState.bootPrioritySequence));
+        boot_file.close();
+
         return true;
 #endif
     }
