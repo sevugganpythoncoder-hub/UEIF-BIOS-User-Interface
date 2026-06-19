@@ -16,10 +16,12 @@ jobs:
             arch: x64
             output: bios_engine_win_x64.dll
             compiler: g++
+            flags: "-static -static-libgcc -static-libstdc++" # Bakes dependencies into the DLL
           - os: ubuntu-latest
             arch: x64
             output: bios_engine_linux_x64.so
             compiler: g++
+            flags: "" # Linux doesn't need these specific static flags
 
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +32,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p bin
-          ${{ matrix.compiler }} -shared -fPIC -o bin/${{ matrix.output }} src/bios_engine.cpp
+          ${{ matrix.compiler }} -shared -fPIC ${{ matrix.flags }} -o bin/${{ matrix.output }} src/bios_engine.cpp
 
       - name: Commit and Push Binaries Directly
         shell: bash
