@@ -12,7 +12,6 @@
     #define EXPORT __attribute__((visibility("default")))
 #endif
 
-
 struct AsusBiosMemoryMap {
     char cpuModel[64] = "Detecting Hardware...";
     uint32_t ramSpeedMhz = 4800;
@@ -34,7 +33,6 @@ struct AsusBiosMemoryMap {
 AsusBiosMemoryMap currentSystemState;
 
 #ifdef _WIN32
-
 bool EnableFirmwarePrivilege() {
     HANDLE hToken;
     TOKEN_PRIVILEGES tkp;
@@ -82,7 +80,6 @@ extern "C" {
         );
         return success != 0;
 #else
-        
         const char* efi_path = "/sys/firmware/efi/efivars/AsusBiosConfigData-8be4df61-93ca-11d2-aa0d-00e098032b8c";
         std::ofstream file(efi_path, std::ios::binary);
         if (!file.is_open()) {
