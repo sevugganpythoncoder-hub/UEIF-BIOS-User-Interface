@@ -1,5 +1,7 @@
 ![Compile BIOS Engine](https://github.com/sevugganpythoncoder-hub/UEIF-BIOS-User-Interface/actions/workflows/build.yml/badge.svg)
 
+FOR EDUCATIONAL PURPOSES ONLY
+
 # UEIF-BIOS-User-Interface
 BIOS user interface software(ASUS GUI knockoff)(Now supports both windows and linux)
 
