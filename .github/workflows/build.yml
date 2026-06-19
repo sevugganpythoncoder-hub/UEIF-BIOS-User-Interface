@@ -1,12 +1,15 @@
-# testing
 name: Compile BIOS Engine
 
 on: [push, pull_request]
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
@@ -20,6 +23,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Compile C++ Engine
         shell: bash
@@ -27,8 +32,16 @@ jobs:
           mkdir -p bin
           ${{ matrix.compiler }} -shared -fPIC -o bin/${{ matrix.output }} src/bios_engine.cpp
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: compiled-binaries-${{ matrix.os }}-${{ matrix.arch }}
-          path: bin/
+      - name: Commit and Push Binaries Directly
+        shell: bash
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add bin/${{ matrix.output }}
+          if git diff --staged --quiet; then
+            echo "No changes detected in compiled binaries."
+          else
+            git commit -m "Automated binary build: ${{ matrix.output }}"
+            git pull --rebase origin ${{ github.head_ref || github.ref_name }}
+            git push origin HEAD:${{ github.head_ref || github.ref_name }}
+          fi
